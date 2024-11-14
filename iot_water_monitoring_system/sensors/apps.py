@@ -4,4 +4,5 @@ class SensorsConfig(AppConfig):
     name = 'sensors'
 
     def ready(self):
-        pass  # No additional code needed here
+        from .mqtt_client import start_mqtt_client
+        start_mqtt_client()  # Start the MQTT client when the app is ready

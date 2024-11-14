@@ -4,6 +4,8 @@ import plotly.express as px
 from .models import WaterQualityData
 import pandas as pd
 from datetime import timedelta
+from django.http import JsonResponse
+from django.utils.dateformat import format
 
 def dashboard_view(request):
     # Retrieve all data from WaterQualityData model
@@ -36,3 +38,30 @@ def cca_view(request):
     fig = px.scatter(x=cca_x[:, 0], y=cca_y[:, 0], title="CCA Analysis of Water Quality Data")
     graph_div = fig.to_html(full_html=False)
     return render(request, 'sensors/analysis.html', {'graph': graph_div, 'title': 'CCA Analysis'})
+
+
+def get_chart_data(request):
+    # Fetch the latest data from the database, you can set a limit if desired (e.g., 20 most recent records)
+    data = WaterQualityData.objects.order_by('-timestamp')[:20]  # Latest 20 records
+    data = data[::-1]  # Reverse to get ascending order by timestamp
+
+    # Prepare data for each chart parameter
+    chart_data = {
+        "timestamp": [format(record.timestamp, 'Y-m-d H:i:s') for record in data],
+        "pH": [record.pH for record in data],
+        "turbidity": [record.turbidity for record in data],
+        "dissolved_oxygen": [record.dissolved_oxygen for record in data],
+        "conductivity": [record.conductivity for record in data],
+        "temperature": [record.temperature for record in data],
+        "nitrate": [record.nitrate for record in data],
+        "phosphate": [record.phosphate for record in data],
+        "total_organic_carbon": [record.total_organic_carbon for record in data],
+        "chlorine": [record.chlorine for record in data],
+        "ammonium": [record.ammonium for record in data],
+        "heavy_metals": [record.heavy_metals for record in data],
+        "fluoride": [record.fluoride for record in data],
+        "oxidation_reduction_potential": [record.oxidation_reduction_potential for record in data],
+        "biological_oxygen_demand": [record.biological_oxygen_demand for record in data],
+    }
+
+    return JsonResponse(chart_data)
