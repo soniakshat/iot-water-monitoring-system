@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    <div>{{ graph|safe }}</div>
+    <p><a href="{% url 'dashboard' %}">Back to Dashboard</a></p>
+  </body>
+</html>

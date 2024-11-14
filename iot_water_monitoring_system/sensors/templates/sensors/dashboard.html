@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Water Quality Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      #charts-container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .chart {
+        width: 45%;
+        margin: 2%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Water Quality Data Dashboard</h1>
+
+    <div id="charts-container">
+      {% for title, chart in charts.items %}
+      <div class="chart">
+        <h2>{{ title }}</h2>
+        <div>{{ chart|safe }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
