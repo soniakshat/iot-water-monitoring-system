@@ -8,6 +8,7 @@ port = 1883  # Default MQTT port
 topic = "test/demo"  # Topic to publish to
 
 # Create a client instance
+# client = mqtt.Client("Publisher")
 client = mqtt.Client("Publisher")
 
 # Connect to the broker

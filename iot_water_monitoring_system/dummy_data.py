@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 # Set up Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iot_water_monitoring_system.settings')  # Replace 'iot_dashboard' with your project name
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iot_water_monitoring_system.settings')
 django.setup()
 
 from sensors.models import WaterQualityData
@@ -13,7 +13,7 @@ from sensors.models import WaterQualityData
 def create_dummy_data():
     for _ in range(10):  # Add 10 records
         WaterQualityData.objects.create(
-            timestamp=datetime.now() - timedelta(days=random.randint(0, 30)),  # Random date within the last 30 days
+            timestamp=datetime.now() - timedelta(days=random.randint(0, 30)),
             pH=round(random.uniform(3.0, 10.0), 2),
             turbidity=round(random.uniform(10.0, 150.0), 2),
             dissolved_oxygen=round(random.uniform(0.0, 12.0), 2),
