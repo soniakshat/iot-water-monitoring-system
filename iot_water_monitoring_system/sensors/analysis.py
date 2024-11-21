@@ -42,10 +42,16 @@ def perform_incremental_pca_and_cca():
 
     # Analyze canonical correlation
     canonical_corr = np.corrcoef(env_c.T, quality_c.T)[:2, 2:]
-    print(f"Canonical Correlations:\n{canonical_corr}")
+
+    min_val = np.min(np.abs(canonical_corr)) 
+    max_val = np.max(np.abs(canonical_corr))
+
+    canonical_corr = canonical_corr * 1e16
+
+    print(np.min(np.abs(canonical_corr)))
 
     # Optionally, detect anomalies
-    if np.min(np.abs(canonical_corr)) < 0.6:
+    if np.min(np.abs(canonical_corr)) > 3:
         print("Anomaly detected in combined water and environmental data!")
         send_alert("Anomaly detected in water quality")
 

@@ -19,7 +19,7 @@ try:
         message = iot.get_data()
         client.publish(topic, message)
         print(f"Published message: {message}")
-        time.sleep(2)  # Wait 2 seconds before sending the next message
+        time.sleep(2)
 except KeyboardInterrupt:
     print("Publisher stopped")
 finally:
