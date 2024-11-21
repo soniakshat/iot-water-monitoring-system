@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from .analysis import get_water_quality_data, perform_pca, perform_cca
 import plotly.express as px
 from .models import WaterQualityData
 import pandas as pd
@@ -25,24 +24,10 @@ def dashboard_view(request):
 
     return render(request, 'sensors/dashboard.html', {'charts': charts})
 
-def pca_view(request):
-    df = get_water_quality_data()
-    pca_results = perform_pca(df)
-    fig = px.scatter(x=pca_results[:, 0], y=pca_results[:, 1], title="PCA Analysis of Water Quality Data")
-    graph_div = fig.to_html(full_html=False)
-    return render(request, 'sensors/analysis.html', {'graph': graph_div, 'title': 'PCA Analysis'})
-
-def cca_view(request):
-    df = get_water_quality_data()
-    cca_x, cca_y = perform_cca(df)
-    fig = px.scatter(x=cca_x[:, 0], y=cca_y[:, 0], title="CCA Analysis of Water Quality Data")
-    graph_div = fig.to_html(full_html=False)
-    return render(request, 'sensors/analysis.html', {'graph': graph_div, 'title': 'CCA Analysis'})
-
 
 def get_chart_data(request):
     # Fetch the latest data from the database, you can set a limit if desired (e.g., 20 most recent records)
-    data = WaterQualityData.objects.order_by('-timestamp')[:20]  # Latest 20 records
+    data = WaterQualityData.objects.order_by('-timestamp')[:50]  # Latest 20 records
     data = data[::-1]  # Reverse to get ascending order by timestamp
 
     # Prepare data for each chart parameter

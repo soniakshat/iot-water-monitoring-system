@@ -5,12 +5,15 @@ import json
 
 # Function to simulate data under normal water quality conditions
 def generate_normal_conditions():
+    temperature = round(random.uniform(15, 25), 2)
+    dissolved_oxygen = round(10 - 0.25 * (temperature - 15), 2)
+
     return {
         "pH": round(random.uniform(6.5, 8.5), 2),
         "Turbidity (NTU)": round(random.uniform(0, 5), 2),
-        "Dissolved Oxygen (mg/L)": round(random.uniform(7, 10), 2),
+        "Dissolved Oxygen (mg/L)": dissolved_oxygen,
         "Conductivity (µS/cm)": round(random.uniform(100, 500), 2),
-        "Temperature (°C)": round(random.uniform(15, 25), 2),
+        "Temperature (°C)": temperature,
         "Nitrate (mg/L)": round(random.uniform(0, 2), 2),
         "Phosphate (mg/L)": round(random.uniform(0, 0.5), 2),
         "Total Organic Carbon (mg/L)": round(random.uniform(0, 5), 2),
@@ -21,6 +24,7 @@ def generate_normal_conditions():
         "Oxidation-Reduction Potential (mV)": round(random.uniform(200, 400), 2),
         "Biological Oxygen Demand (mg/L)": round(random.uniform(1, 5), 2),
     }
+
 
 
 # Function to simulate data under abnormal water quality conditions
@@ -62,12 +66,12 @@ def generate_mixed_conditions(switch_time=10):
 
 
 def get_data():
-    seed = random.random()
-    if seed % 2 is 0:
+    seed = random.random() * 10
+    print(seed // 2)
+    if seed // 2 != 0.0:
         return json.dumps(generate_normal_conditions(), indent=4)
     else:
         return json.dumps(generate_abnormal_conditions(), indent=4)
-
 
 
 # Function to simulate and print data under normal conditions indefinitely
@@ -93,4 +97,4 @@ if __name__ == "__main__":
     # Uncomment one of the following lines to test each scenario
     # simulate_normal()  # Simulate normal conditions
     # simulate_abnormal()  # Simulate abnormal conditions
-    generate_mixed_conditions(switch_time=10)  # Simulate normal, then switch to abnormal
+    generate_mixed_conditions(switch_time=10)

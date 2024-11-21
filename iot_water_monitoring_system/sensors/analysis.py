@@ -8,31 +8,32 @@ import numpy as np
 from sklearn.cross_decomposition import CCA
 
 def get_latest_data():
-    # Fetch the latest 600 records
     data = WaterQualityData.objects.order_by('-timestamp')[:600]
     return pd.DataFrame(list(data.values()))
 
 def perform_incremental_pca_and_cca():
     df = get_latest_data()
+
     if len(df) < 600:
-        return  # Ensure we have enough data points
+        return
 
-    # Standardize the data
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df.drop(columns=['timestamp']))
-
-    # Separate into environmental and water quality data
-    # Environmental data: temperature, conductivity, oxidation_reduction_potential
+    # Separate data into environmental and water quality
     env_data = df[['temperature', 'conductivity', 'oxidation_reduction_potential']].values
-
-    # Water quality data: all other fields except timestamp
     quality_data = df.drop(columns=['timestamp', 'temperature', 'conductivity', 'oxidation_reduction_potential']).values
+
+    # Standardize separately
+    scaler_env = StandardScaler()
+    scaler_quality = StandardScaler()
+
+    env_data_scaled = scaler_env.fit_transform(env_data)
+    quality_data_scaled = scaler_quality.fit_transform(quality_data)
 
     # Perform Incremental PCA
     ipca_env = IncrementalPCA(n_components=2)
     ipca_quality = IncrementalPCA(n_components=2)
-    reduced_env = ipca_env.fit_transform(env_data)
-    reduced_quality = ipca_quality.fit_transform(quality_data)
+
+    reduced_env = ipca_env.fit_transform(env_data_scaled)
+    reduced_quality = ipca_quality.fit_transform(quality_data_scaled)
 
     # Perform CCA
     cca = CCA(n_components=2)
@@ -44,8 +45,9 @@ def perform_incremental_pca_and_cca():
     print(f"Canonical Correlations:\n{canonical_corr}")
 
     # Optionally, detect anomalies
-    if np.min(np.abs(canonical_corr)) < 0.5:
-        send_alert("Anomaly detected in combined water and environmental data!")
+    if np.min(np.abs(canonical_corr)) < 0.6:
+        print("Anomaly detected in combined water and environmental data!")
+        send_alert("Anomaly detected in water quality")
 
 def send_alert(message):
     channel_layer = get_channel_layer()
@@ -56,3 +58,4 @@ def send_alert(message):
             "message": {"alert": message}
         }
     )
+    print("Message sent to group 'water_quality_alerts'")

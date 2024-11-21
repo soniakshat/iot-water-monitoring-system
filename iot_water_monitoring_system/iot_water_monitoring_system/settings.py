@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-v-z67po(*ars$z9-87@a=61=!ijlpph2v!2fe_atus&mcsi#oa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sensors.apps.SensorsConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import json
 from .models import WaterQualityData
-from .analysis import perform_incremental_pca
+from .analysis import perform_incremental_pca_and_cca
 import threading
 
 # MQTT broker details
@@ -11,7 +11,6 @@ MQTT_TOPIC = 'test/demo'
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("Connected to MQTT Broker!")
         client.subscribe(MQTT_TOPIC)
     else:
         print(f"Failed to connect, return code {rc}")
@@ -42,8 +41,6 @@ def on_message(client, userdata, msg):
 
         # Perform Incremental PCA and CCA
         perform_incremental_pca_and_cca()
-        
-        print("Water Quality Data saved to the database")
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
     except KeyError as e:
