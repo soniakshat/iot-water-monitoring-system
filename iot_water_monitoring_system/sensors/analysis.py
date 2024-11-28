@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.cross_decomposition import CCA
 
 def get_latest_data():
-    data = WaterQualityData.objects.order_by('-timestamp')[:600]
+    data = WaterQualityData.objects.order_by('-timestamp')[:1000]
     return pd.DataFrame(list(data.values()))
 
 def perform_incremental_pca_and_cca():
@@ -51,7 +51,7 @@ def perform_incremental_pca_and_cca():
     print(np.min(np.abs(canonical_corr)))
 
     # Optionally, detect anomalies
-    if np.min(np.abs(canonical_corr)) > 3:
+    if np.min(np.abs(canonical_corr)) > 2.5:
         print("Anomaly detected in combined water and environmental data!")
         send_alert("Anomaly detected in water quality")
 
