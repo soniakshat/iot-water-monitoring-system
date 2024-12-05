@@ -48,48 +48,47 @@ def generate_abnormal_conditions():
     }
 
 
-# Function to simulate mixed conditions, starting with normal and then switching to abnormal
-def generate_mixed_conditions(switch_time=10):
-    start_time = time.time()
-    while True:
-        current_time = time.time()
-        # Switch to abnormal after the specified switch time
-        if current_time - start_time < switch_time:
-            sensor_data = generate_normal_conditions()
-            print("Normal conditions:")
-        else:
-            sensor_data = generate_abnormal_conditions()
-            print("Abnormal conditions:")
-        sensor_data_json = json.dumps(sensor_data, indent=4)
-        print(sensor_data_json)
-        time.sleep(1)  # Generate data every second
+# # Function to simulate mixed conditions, starting with normal and then switching to abnormal
+# def generate_mixed_conditions(switch_time=10):
+#     start_time = time.time()
+#     while True:
+#         current_time = time.time()
+#         # Switch to abnormal after the specified switch time
+#         if current_time - start_time < switch_time:
+#             sensor_data = generate_normal_conditions()
+#             print("Normal conditions:")
+#         else:
+#             sensor_data = generate_abnormal_conditions()
+#             print("Abnormal conditions:")
+#         sensor_data_json = json.dumps(sensor_data, indent=4)
+#         print(sensor_data_json)
+#         time.sleep(1)  # Generate data every second
 
 
 def get_data():
     seed = random.random() * 10
-    print(seed // 2)
     if seed // 2 != 0.0:
         return json.dumps(generate_normal_conditions(), indent=4)
     else:
         return json.dumps(generate_abnormal_conditions(), indent=4)
 
 
-# Function to simulate and print data under normal conditions indefinitely
-def simulate_normal():
-    while True:
-        sensor_data = generate_normal_conditions()
-        print("Normal conditions:")
-        print(json.dumps(sensor_data, indent=4))
-        time.sleep(1)  # Generate data every second
+# # Function to simulate and print data under normal conditions indefinitely
+# def simulate_normal():
+#     while True:
+#         sensor_data = generate_normal_conditions()
+#         print("Normal conditions:")
+#         print(json.dumps(sensor_data, indent=4))
+#         time.sleep(1)  # Generate data every second
 
 
-# Function to simulate and print data under abnormal conditions indefinitely
-def simulate_abnormal():
-    while True:
-        sensor_data = generate_abnormal_conditions()
-        print("Abnormal conditions:")
-        print(json.dumps(sensor_data, indent=4))
-        time.sleep(1)  # Generate data every second
+# # Function to simulate and print data under abnormal conditions indefinitely
+# def simulate_abnormal():
+#     while True:
+#         sensor_data = generate_abnormal_conditions()
+#         print("Abnormal conditions:")
+#         print(json.dumps(sensor_data, indent=4))
+#         time.sleep(1)  # Generate data every second
 
 
 # Example usage

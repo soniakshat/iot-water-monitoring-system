@@ -112,13 +112,15 @@
   </div>
 
   <script>
+    const MAX_ALERTS = 50;
+    const alertsList = document.getElementById('alerts-list');
+
     // Create a new WebSocket connection
     const socket = new WebSocket('ws://' + window.location.host + '/ws/water-quality/');
 
     // Event handler for when a message is received
     socket.onmessage = function (e) {
       const data = JSON.parse(e.data);
-      const alertsList = document.getElementById('alerts-list');
 
       // Create a new list item for the alert
       const alertItem = document.createElement('li');
@@ -126,7 +128,13 @@
 
       // Add the new alert to the top of the list
       alertsList.insertBefore(alertItem, alertsList.firstChild);
-    }
+
+      // Check if the number of alerts exceeds the limit
+      if (alertsList.children.length > MAX_ALERTS) {
+        // Remove the oldest alert (last child)
+        alertsList.removeChild(alertsList.lastChild);
+      }
+    };
 
     // Event handler for when the connection is opened
     socket.onopen = function () {
