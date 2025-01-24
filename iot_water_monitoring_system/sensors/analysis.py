@@ -1,15 +1,16 @@
-import pandas as pd
 from .models import WaterQualityData
 from sklearn.decomposition import IncrementalPCA
 from sklearn.preprocessing import StandardScaler
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-import numpy as np
 from sklearn.cross_decomposition import CCA
+import pandas as pd
+import numpy as np
+import anomaly_queue as aq  # Import the shared queue
+
 
 def get_latest_data():
     data = WaterQualityData.objects.order_by('-timestamp')[:1000]
     return pd.DataFrame(list(data.values()))
+
 
 def perform_incremental_pca_and_cca():
     df = get_latest_data()
@@ -42,26 +43,21 @@ def perform_incremental_pca_and_cca():
 
     # Analyze canonical correlation
     canonical_corr = np.corrcoef(env_c.T, quality_c.T)[:2, 2:]
-
-    min_val = np.min(np.abs(canonical_corr)) 
-    max_val = np.max(np.abs(canonical_corr))
-
     canonical_corr = canonical_corr * 1e16
+    min_corr = np.min(np.abs(canonical_corr))
+    print(f"The canonical corr value: {min_corr}")
 
-    print(np.min(np.abs(canonical_corr)))
-
-    # Optionally, detect anomalies
-    if np.min(np.abs(canonical_corr)) > 2.5:
+    # Detect anomalies
+    if min_corr > 0.005:
         print("Anomaly detected in combined water and environmental data!")
-        send_alert("Anomaly detected in water quality")
+        send_alert_to_sse("Anomaly detected in water quality")
 
-def send_alert(message):
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        "water_quality_alerts",
-        {
-            "type": "send_water_quality_alert",
-            "message": {"alert": message}
-        }
-    )
-    print("Message sent to group 'water_quality_alerts'")
+
+def send_alert_to_sse(message):
+    """Send an alert to the SSE queue."""
+    anomaly_data = {
+        "message": message,
+        "timestamp": pd.Timestamp.now().isoformat(),
+    }
+    aq.add_to_queue(anomaly_data)
+    print(f"Anomaly added to SSE queue: {anomaly_data}")

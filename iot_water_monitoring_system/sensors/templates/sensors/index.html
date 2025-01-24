@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+</head>
+<body>
+<h1>Real-time Notifications</h1>
+<ul id="notifications"></ul>
+
+<script>
+    const eventSource = new EventSource('/sse/notifications/');
+    eventSource.onmessage = function (event) {
+        console.log('New notification:', event.data);
+    };
+</script>
+</body>
+</html>

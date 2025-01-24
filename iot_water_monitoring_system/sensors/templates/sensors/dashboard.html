@@ -2,275 +2,259 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Water Quality Dashboard</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <style>
-    #charts-container {
-      display: flex;
-      flex-wrap: wrap;
-    }
+    <meta charset="UTF-8"/>
+    <title>Water Quality Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        #charts-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
 
-    .chart {
-      width: 45%;
-      margin: 2%;
-    }
+        .chart {
+            width: 45%;
+            margin: 2%;
+        }
 
-    #alerts-container {
-      margin: 2%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-    }
+        #alerts-container {
+            margin: 2%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
 
-    #alerts-list {
-      list-style-type: none;
-      padding: 0;
-      max-height: 150px;
-      overflow-y: auto;
-    }
+        #alerts-list {
+            list-style-type: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
 
-    #alerts-list li {
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
-    }
+        #alerts-list li {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
 
-    #alerts-list li:last-child {
-      border-bottom: none;
-    }
-  </style>
+        #alerts-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 
 <body>
-  <h1>Water Quality Data Dashboard</h1>
-
-  <!-- Add a new section for alerts -->
-  <div id="alerts-container">
+<h1>Water Quality Data Dashboard</h1>
+<!-- Add a new section for alerts -->
+<div id="alerts-container">
     <h2>Alerts</h2>
     <ul id="alerts-list"></ul>
-  </div>
+</div>
 
-  <div id="charts-container">
+<div id="charts-container">
     <!-- Each div corresponds to a parameter chart -->
     <div class="chart">
-      <h2>pH Level</h2>
-      <div id="phChart"></div>
+        <h2>pH Level</h2>
+        <div id="phChart"></div>
     </div>
     <div class="chart">
-      <h2>Turbidity (NTU)</h2>
-      <div id="turbidityChart"></div>
+        <h2>Turbidity (NTU)</h2>
+        <div id="turbidityChart"></div>
     </div>
     <div class="chart">
-      <h2>Dissolved Oxygen (mg/L)</h2>
-      <div id="dissolvedOxygenChart"></div>
+        <h2>Dissolved Oxygen (mg/L)</h2>
+        <div id="dissolvedOxygenChart"></div>
     </div>
     <div class="chart">
-      <h2>Conductivity (µS/cm)</h2>
-      <div id="conductivityChart"></div>
+        <h2>Conductivity (µS/cm)</h2>
+        <div id="conductivityChart"></div>
     </div>
     <div class="chart">
-      <h2>Temperature (°C)</h2>
-      <div id="temperatureChart"></div>
+        <h2>Temperature (°C)</h2>
+        <div id="temperatureChart"></div>
     </div>
     <div class="chart">
-      <h2>Nitrate (mg/L)</h2>
-      <div id="nitrateChart"></div>
+        <h2>Nitrate (mg/L)</h2>
+        <div id="nitrateChart"></div>
     </div>
     <div class="chart">
-      <h2>Phosphate (mg/L)</h2>
-      <div id="phosphateChart"></div>
+        <h2>Phosphate (mg/L)</h2>
+        <div id="phosphateChart"></div>
     </div>
     <div class="chart">
-      <h2>Total Organic Carbon (mg/L)</h2>
-      <div id="totalOrganicCarbonChart"></div>
+        <h2>Total Organic Carbon (mg/L)</h2>
+        <div id="totalOrganicCarbonChart"></div>
     </div>
     <div class="chart">
-      <h2>Chlorine (mg/L)</h2>
-      <div id="chlorineChart"></div>
+        <h2>Chlorine (mg/L)</h2>
+        <div id="chlorineChart"></div>
     </div>
     <div class="chart">
-      <h2>Ammonium (mg/L)</h2>
-      <div id="ammoniumChart"></div>
+        <h2>Ammonium (mg/L)</h2>
+        <div id="ammoniumChart"></div>
     </div>
     <div class="chart">
-      <h2>Heavy Metals (µg/L)</h2>
-      <div id="heavyMetalsChart"></div>
+        <h2>Heavy Metals (µg/L)</h2>
+        <div id="heavyMetalsChart"></div>
     </div>
     <div class="chart">
-      <h2>Fluoride (mg/L)</h2>
-      <div id="fluorideChart"></div>
+        <h2>Fluoride (mg/L)</h2>
+        <div id="fluorideChart"></div>
     </div>
     <div class="chart">
-      <h2>Oxidation-Reduction Potential (mV)</h2>
-      <div id="orpChart"></div>
+        <h2>Oxidation-Reduction Potential (mV)</h2>
+        <div id="orpChart"></div>
     </div>
     <div class="chart">
-      <h2>Biological Oxygen Demand (mg/L)</h2>
-      <div id="bodChart"></div>
+        <h2>Biological Oxygen Demand (mg/L)</h2>
+        <div id="bodChart"></div>
     </div>
-  </div>
+</div>
 
-  <script>
-    const MAX_ALERTS = 50;
+<script>
+    const MAX_ALERTS = 200;
     const alertsList = document.getElementById('alerts-list');
 
-    // Create a new WebSocket connection
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/water-quality/');
+    // Establish an SSE connection
+    const eventSource = new EventSource('/sse/notifications/');
+    eventSource.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log('New anomaly detected:', data);
 
-    // Event handler for when a message is received
-    socket.onmessage = function (e) {
-      const data = JSON.parse(e.data);
+        const alertItem = document.createElement('li');
+        alertItem.textContent = `${data.message} (at ${data.timestamp})`;
+        // Add the new alert to the top of the list
+        alertsList.insertBefore(alertItem, alertsList.firstChild);
 
-      // Create a new list item for the alert
-      const alertItem = document.createElement('li');
-      alertItem.textContent = `${new Date().toLocaleString()}: ${data.alert}`;
-
-      // Add the new alert to the top of the list
-      alertsList.insertBefore(alertItem, alertsList.firstChild);
-
-      // Check if the number of alerts exceeds the limit
-      if (alertsList.children.length > MAX_ALERTS) {
-        // Remove the oldest alert (last child)
-        alertsList.removeChild(alertsList.lastChild);
-      }
+        // Keep the list within MAX_ALERTS size
+        if (alertsList.children.length > MAX_ALERTS) {
+            alertsList.removeChild(alertsList.lastChild);
+        }
     };
 
-    // Event handler for when the connection is opened
-    socket.onopen = function () {
-      console.log('WebSocket connection established');
-    };
-
-    // Event handler for when the connection is closed
-    socket.onclose = function () {
-      console.log('WebSocket connection closed');
-    };
-
-    // Event handler for when an error occurs
-    socket.onerror = function (error) {
-      console.error('WebSocket error:', error);
+    eventSource.onerror = function () {
+        console.error('SSE connection error.');
     };
 
     // Initialize each Plotly chart
     const phChart = createPlotlyChart("phChart", "pH Level");
     const turbidityChart = createPlotlyChart(
-      "turbidityChart",
-      "Turbidity (NTU)"
+        "turbidityChart",
+        "Turbidity (NTU)"
     );
     const dissolvedOxygenChart = createPlotlyChart(
-      "dissolvedOxygenChart",
-      "Dissolved Oxygen (mg/L)"
+        "dissolvedOxygenChart",
+        "Dissolved Oxygen (mg/L)"
     );
     const conductivityChart = createPlotlyChart(
-      "conductivityChart",
-      "Conductivity (µS/cm)"
+        "conductivityChart",
+        "Conductivity (µS/cm)"
     );
     const temperatureChart = createPlotlyChart(
-      "temperatureChart",
-      "Temperature (°C)"
+        "temperatureChart",
+        "Temperature (°C)"
     );
     const nitrateChart = createPlotlyChart("nitrateChart", "Nitrate (mg/L)");
     const phosphateChart = createPlotlyChart(
-      "phosphateChart",
-      "Phosphate (mg/L)"
+        "phosphateChart",
+        "Phosphate (mg/L)"
     );
     const totalOrganicCarbonChart = createPlotlyChart(
-      "totalOrganicCarbonChart",
-      "Total Organic Carbon (mg/L)"
+        "totalOrganicCarbonChart",
+        "Total Organic Carbon (mg/L)"
     );
     const chlorineChart = createPlotlyChart(
-      "chlorineChart",
-      "Chlorine (mg/L)"
+        "chlorineChart",
+        "Chlorine (mg/L)"
     );
     const ammoniumChart = createPlotlyChart(
-      "ammoniumChart",
-      "Ammonium (mg/L)"
+        "ammoniumChart",
+        "Ammonium (mg/L)"
     );
     const heavyMetalsChart = createPlotlyChart(
-      "heavyMetalsChart",
-      "Heavy Metals (µg/L)"
+        "heavyMetalsChart",
+        "Heavy Metals (µg/L)"
     );
     const fluorideChart = createPlotlyChart(
-      "fluorideChart",
-      "Fluoride (mg/L)"
+        "fluorideChart",
+        "Fluoride (mg/L)"
     );
     const orpChart = createPlotlyChart(
-      "orpChart",
-      "Oxidation-Reduction Potential (mV)"
+        "orpChart",
+        "Oxidation-Reduction Potential (mV)"
     );
     const bodChart = createPlotlyChart(
-      "bodChart",
-      "Biological Oxygen Demand (mg/L)"
+        "bodChart",
+        "Biological Oxygen Demand (mg/L)"
     );
 
     // Function to initialize a Plotly line chart
     function createPlotlyChart(elementId, title) {
-      const layout = {
-        title: title,
-        xaxis: { title: "Time" },
-        yaxis: { title: title },
-      };
-      const data = [
-        {
-          x: [],
-          y: [],
-          mode: "lines",
-          line: { color: "blue" },
-        },
-      ];
-      Plotly.newPlot(elementId, data, layout);
-      return elementId;
+        const layout = {
+            title: title,
+            xaxis: {title: "Time"},
+            yaxis: {title: title},
+        };
+        const data = [
+            {
+                x: [],
+                y: [],
+                mode: "lines",
+                line: {color: "blue"},
+            },
+        ];
+        Plotly.newPlot(elementId, data, layout);
+        return elementId;
     }
 
     // Function to fetch and update chart data
     function fetchChartData() {
-      fetch("{% url 'chart_data' %}")
-        .then((response) => response.json())
-        .then((data) => {
-          // Update each chart with new data
-          extendChart(phChart, data.timestamp, data.pH);
-          extendChart(turbidityChart, data.timestamp, data.turbidity);
-          extendChart(
-            dissolvedOxygenChart,
-            data.timestamp,
-            data.dissolved_oxygen
-          );
-          extendChart(conductivityChart, data.timestamp, data.conductivity);
-          extendChart(temperatureChart, data.timestamp, data.temperature);
-          extendChart(nitrateChart, data.timestamp, data.nitrate);
-          extendChart(phosphateChart, data.timestamp, data.phosphate);
-          extendChart(
-            totalOrganicCarbonChart,
-            data.timestamp,
-            data.total_organic_carbon
-          );
-          extendChart(chlorineChart, data.timestamp, data.chlorine);
-          extendChart(ammoniumChart, data.timestamp, data.ammonium);
-          extendChart(heavyMetalsChart, data.timestamp, data.heavy_metals);
-          extendChart(fluorideChart, data.timestamp, data.fluoride);
-          extendChart(
-            orpChart,
-            data.timestamp,
-            data.oxidation_reduction_potential
-          );
-          extendChart(
-            bodChart,
-            data.timestamp,
-            data.biological_oxygen_demand
-          );
-        });
+        fetch("{% url 'chart_data' %}")
+            .then((response) => response.json())
+            .then((data) => {
+                // Update each chart with new data
+                extendChart(phChart, data.timestamp, data.pH);
+                extendChart(turbidityChart, data.timestamp, data.turbidity);
+                extendChart(
+                    dissolvedOxygenChart,
+                    data.timestamp,
+                    data.dissolved_oxygen
+                );
+                extendChart(conductivityChart, data.timestamp, data.conductivity);
+                extendChart(temperatureChart, data.timestamp, data.temperature);
+                extendChart(nitrateChart, data.timestamp, data.nitrate);
+                extendChart(phosphateChart, data.timestamp, data.phosphate);
+                extendChart(
+                    totalOrganicCarbonChart,
+                    data.timestamp,
+                    data.total_organic_carbon
+                );
+                extendChart(chlorineChart, data.timestamp, data.chlorine);
+                extendChart(ammoniumChart, data.timestamp, data.ammonium);
+                extendChart(heavyMetalsChart, data.timestamp, data.heavy_metals);
+                extendChart(fluorideChart, data.timestamp, data.fluoride);
+                extendChart(
+                    orpChart,
+                    data.timestamp,
+                    data.oxidation_reduction_potential
+                );
+                extendChart(
+                    bodChart,
+                    data.timestamp,
+                    data.biological_oxygen_demand
+                );
+            });
     }
 
     // Function to update a Plotly chart with new data
     function extendChart(chartId, xData, yData) {
-      Plotly.react(chartId, [
-        {
-          x: xData,
-          y: yData,
-          mode: "lines",
-          line: { color: "blue" },
-        },
-      ]);
+        Plotly.react(chartId, [
+            {
+                x: xData,
+                y: yData,
+                mode: "lines",
+                line: {color: "blue"},
+            },
+        ]);
     }
 
     // Fetch and update chart data every 5 seconds
@@ -278,7 +262,7 @@
 
     // Initial data fetch
     fetchChartData();
-  </script>
+</script>
 </body>
 
 </html>
